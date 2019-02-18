@@ -43,37 +43,52 @@ export default {
   data() {
     return {
       isReg: false,
-      name: "",
-      passWord: "",
-      repeat: ""
+      name: '',
+      passWord: '',
+      repeat: ''
     };
   },
   methods: {
     login() {
-      if (
-        localStorage.getItem("name") === this.name &&
-        localStorage.getItem("password") === this.passWord
-      ) {
-        this.$router.push("/home/list");
-      } else {
-        alert("密码不正确");
-      }
+      this.$axios.post('/api/login', {
+        name: this.name,
+        password: this.passWord
+      }).then((doc) => {
+        if(doc.data == ''){
+          alert('密码不正确')
+        }else{
+          this.$router.push('/home/list')
+        }
+      })
     },
     rege() {
-      this.isReg = true;
+      this.name = ''
+      this.passWord = ''
+      this.isReg = true
     },
     cache() {
-      this.isReg = false;
+      this.isReg = false
     },
     addUser() {
-      if (this.passWord === this.repeat) {
-        localStorage.setItem("name", this.name);
-        localStorage.setItem("password", this.passWord);
-        (this.name = ""), (this.passWord = ""), (this.repeat = "");
-        this.isReg = false;
-      } else {
-        alert("两次密码输入不一致");
+      if(this.passWord === this.repeat){
+        this.$axios.post('/api/addUser',{
+          name: this.name,
+          passWord: this.passWord
+        }).then((doc) => {
+          if(doc.data == ''){
+            alert('用户名已注册过')
+          }else{
+            alert('注册成功')
+            this.name = ''
+            this.passWord = ''
+            this.repeat = ''
+            this.isReg = false
+          }
+        })
+      }else{
+        alert('两次密码输入不同')
       }
+      
     }
   }
 };
@@ -102,8 +117,7 @@ export default {
     border: 1px solid #428113;
     margin-left: 10px;
     text-align: center;
+    cursor: pointer;
   }
-}
-.repeat {
 }
 </style>

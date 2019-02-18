@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/login.vue'
 import Add from './views/add.vue'
+import Blog from './views/blog.vue'
 
 Vue.use(Router)
 
@@ -39,6 +40,11 @@ export default new Router({
       path: '/add',
       name: 'add',
       component: Add
+    },
+    {
+      path: '/blog',
+      name: 'blog',
+      component: Blog
     }
 
   ]
