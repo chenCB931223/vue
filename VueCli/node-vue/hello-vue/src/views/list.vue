@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div>
+      <form class="search">
+        <input type="text" v-model="search">
+        <button type="button" @click="getSearch()">搜索</button>
+      </form>
+    </div>
+    <p class="getInfo">{{getInfo}}</p>
     <ul class="list">
       <li class="listItem"  v-for="(item,index) in lists" :key="index" @click="skip(index)">
         <h4 class="listTile">{{item.title}}</h4>
@@ -22,10 +29,12 @@ export default {
   store,
   data () {
     return {
-      page: 1,
+      getInfo : '',
+      page: '',
       pages: '',
       lists: [],
-      limit: ''
+      limit: '',
+      search:''
     }
   },
   methods: {
@@ -38,27 +47,54 @@ export default {
       })
       this.$router.push('/blog')
     },
+    getSearch () {
+      this.$axios.post('/api/search',{
+        search:this.search
+      }).then((result) => {
+        console.log(result)
+        if(result.data.pages === 0) {
+          this.getInfo = '无相关内容！'
+          this.page = 0
+          this.pages = 0
+          this.lists = []
+        }else {
+          this.getInfo = ''
+          this.page = result.data.page
+          this.pages = result.data.pages
+          this.lists = result.data.list
+
+          this.$router.push('/search')
+        }
+      })
+    },
     next () {
     if(this.page == this.pages){
       return
     }
-     this.$router.push('/home/list?page=' + (this.page + 1))
+    this.$router.push('?page=' + (this.page + 1))
     this.showIndex()
     },
     prev () {
     if(this.page == 1){
       return
     }
-     this.$router.push('/home/list?page=' + (this.page - 1))
-    this.showIndex()
+     this.$router.push('?page=' + (this.page - 1))
+     this.showIndex()
     },
     showIndex () {
       let search = window.location.search
       this.$axios.get(`/api/blog${search}`).then((doc) => {
-        this.lists = doc.data.list
-        this.page = Number(doc.data.page)
-        this.pages = doc.data.pages
-        this.limit = doc.data.limit
+        console.log(doc);
+        if(doc.data.pages === 0){
+          this.getInfo = '空空如也'
+          this.page = 0
+          this.pages = 0
+        }else{
+          this.getInfo = ''
+          this.lists = doc.data.list
+          this.page = Number(doc.data.page)
+          this.pages = doc.data.pages
+        }
         
       }).catch((err) => {
         console.error(err)
@@ -96,6 +132,10 @@ export default {
     overflow: hidden;
   }
 }
+.getInfo{
+  padding-left: 20px;
+  font-size: 14px;
+}
 .info{
   margin-top: 10px;
   p{
@@ -105,5 +145,27 @@ export default {
 }
 .active{
   background: #428412;
+}
+.search{
+  padding: 10px 10px;
+  input[type=text]{
+    padding-left: 5px;
+    width: 100px;
+    height: 20px;
+    border-radius: 5px;
+    margin-right: 8px;
+    &:focus{
+      transition: all .5s;
+      width: 200px;
+    }
+  }
+
+  button{
+    width: 50px;
+    text-align: center;
+    color: #fff;
+    border-radius: 5px;
+    background: #428412;
+  }
 }
 </style>

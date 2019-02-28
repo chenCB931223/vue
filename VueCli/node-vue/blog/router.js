@@ -68,4 +68,26 @@ router.post('/publish', function (req, res) {
   })
 })
 
+router.post('/search',function (req,res) { 
+  let title = req.body.search
+  let limit = 3
+  let newUrl = url.parse(req.url, true)
+  console.log(newUrl);
+  let page = newUrl.query.page || 1
+  Db.find({title:title}).then((docs) => {
+    let pages = Math.ceil(docs.length / limit)
+    let list = docs.slice(limit * (page - 1), limit * page)
+    let data = {
+      page: page,
+      pages: pages,
+      list: list
+    }
+    console.log(data)
+    res.send(data)
+    return docs
+  }).catch((err) => {
+    console.error(err);
+  })
+ })
+
 module.exports = router
